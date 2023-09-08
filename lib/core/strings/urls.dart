@@ -17,4 +17,7 @@ class URLs {
 
   static const OrdersUrl =
       "https://shop-app-2d5e8-default-rtdb.firebaseio.com/orders/";
+
+  static const ToggleFavouriteUrl =
+      "https://shop-app-2d5e8-default-rtdb.firebaseio.com/userFavourites/";
 }

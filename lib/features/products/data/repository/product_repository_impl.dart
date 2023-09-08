@@ -87,4 +87,20 @@ class ProductsRepositoryImpl extends ProductsRepository {
       return Left(OfflineFailure());
     }
   }
+
+  @override
+  Future<Either<Failure, Unit>> toggleFavourite(
+      bool currentFavouriteState, String productId) async {
+    if (await networkInfoImpl.isConnected) {
+      try {
+        await remoteDatasource.toggleFavourite(
+            currentFavouriteState, productId);
+        return const Right(unit);
+      } catch (error) {
+        throw ServerFailure();
+      }
+    } else {
+      return Left(OfflineFailure());
+    }
+  }
 }

@@ -13,4 +13,7 @@ abstract class ProductsRepository {
 
   Future<Either<Failure, Unit>> updateProduct(
       Product updatedProduct, String productId);
+
+  Future<Either<Failure, Unit>> toggleFavourite(
+      bool currentFavouriteState, String productId);
 }

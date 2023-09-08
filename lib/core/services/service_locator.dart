@@ -6,6 +6,8 @@ import 'package:shop_app_clean_architecture/features/orders/data/repositories/or
 import 'package:shop_app_clean_architecture/features/orders/domain/usecase/add_order_usecase.dart';
 import 'package:shop_app_clean_architecture/features/orders/domain/usecase/get_orders_usecase.dart';
 import 'package:shop_app_clean_architecture/features/orders/presentation/bloc/orders_bloc.dart';
+import 'package:shop_app_clean_architecture/features/products/domain/usecases/toggle_favourite.dart';
+import 'package:shop_app_clean_architecture/features/products/presentaion/BLoCs/bloc/toggle_favourite_bloc.dart';
 import '../network/network_info.dart';
 import '../../features/products/domain/usecases/add_product.dart';
 import '../../features/products/domain/usecases/delete_product.dart';
@@ -78,6 +80,9 @@ Future<void> init() async {
       updateProduct: sl<UpdateProductUsecase>(),
       delteProduct: sl<DeleteProductUsecase>()));
 
+  sl.registerFactory(
+      () => ToggleFavouriteBloc(toggleFavourite: sl<ToggleFavouriteUsecase>()));
+
   //* UseCases
 
   sl.registerLazySingleton<GetAllProductsUsecase>(
@@ -94,6 +99,9 @@ Future<void> init() async {
 
   sl.registerLazySingleton<DeleteProductUsecase>(
       () => DeleteProductUsecase(repository: sl<ProductsRepositoryImpl>()));
+
+  sl.registerLazySingleton<ToggleFavouriteUsecase>(
+      () => ToggleFavouriteUsecase(repository: sl<ProductsRepositoryImpl>()));
 
   //* Repositories
 

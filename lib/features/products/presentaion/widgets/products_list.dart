@@ -1,7 +1,7 @@
 import 'package:flutter/widgets.dart';
 
 import '../../domain/entities/product.dart';
-import 'product_item.dart';
+import 'product_item_widget.dart';
 
 class ProductsList extends StatelessWidget {
   final List<Product> products;

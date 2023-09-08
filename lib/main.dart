@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:shop_app_clean_architecture/features/orders/presentation/bloc/orders_bloc.dart';
 import 'package:shop_app_clean_architecture/features/orders/presentation/pages/cart_screen.dart';
 import 'package:shop_app_clean_architecture/features/orders/presentation/pages/orders_screen.dart';
+import 'package:shop_app_clean_architecture/features/products/presentaion/BLoCs/bloc/toggle_favourite_bloc.dart';
 import 'package:shop_app_clean_architecture/providers/cart_provider.dart';
 import 'features/products/presentaion/Blocs/add_update_delete_product_bloc/add_update_delete_product_bloc_bloc.dart';
 import 'features/products/presentaion/pages/edit_product_screen.dart';
@@ -40,6 +41,7 @@ class MyApp extends StatelessWidget {
         BlocProvider(
           create: (_) => di.sl<OrdersBloc>(),
         ),
+        BlocProvider(create: (_) => di.sl<ToggleFavouriteBloc>())
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,

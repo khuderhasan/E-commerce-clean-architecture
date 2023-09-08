@@ -14,9 +14,10 @@ abstract class ProductRemoteDatasource {
   Future<Unit> addProduct(ProductModel newProduct);
   Future<Unit> deleteProduct(String productId);
   Future<Unit> updateProduct(ProductModel updatedProduct, String productId);
+  Future<Unit> toggleFavourite(bool currentFavouriteState, String productId);
 }
 
-final token = sl<CurrentUser>().authToken;
+final authToken = sl<CurrentUser>().authToken;
 final userId = sl<CurrentUser>().userId;
 
 class ProductsRemoteDatasourceImpl extends ProductRemoteDatasource {
@@ -32,14 +33,14 @@ class ProductsRemoteDatasourceImpl extends ProductRemoteDatasource {
       // getting all products
 
       final getAllProductsEndPoint =
-          Uri.parse("${URLs.GetAllProductsUrl}$token&$filterString");
+          Uri.parse("${URLs.GetAllProductsUrl}$authToken&$filterString");
       final getAllProductsResponse = await _client.get(getAllProductsEndPoint);
       final listOfProductsMapData = jsonDecode(getAllProductsResponse.body);
 
       // getting favourite products data
 
-      final getFavouritesEndPoitn =
-          Uri.parse("${URLs.GetFavouriteProductsUrl}$userId.json?auth=$token");
+      final getFavouritesEndPoitn = Uri.parse(
+          "${URLs.GetFavouriteProductsUrl}$userId.json?auth=$authToken");
       final getFavouritesResponse = await _client.get(getFavouritesEndPoitn);
       final favouritesData = jsonDecode(getFavouritesResponse.body);
 
@@ -55,7 +56,7 @@ class ProductsRemoteDatasourceImpl extends ProductRemoteDatasource {
 
   @override
   Future<Unit> addProduct(ProductModel newProduct) {
-    final addProductEndPoint = Uri.parse("${URLs.AddProductUrl}$token");
+    final addProductEndPoint = Uri.parse("${URLs.AddProductUrl}$authToken");
     final addProductBody = jsonEncode({
       'title': newProduct.title,
       'description': newProduct.description,
@@ -74,7 +75,7 @@ class ProductsRemoteDatasourceImpl extends ProductRemoteDatasource {
   @override
   Future<Unit> deleteProduct(String productId) {
     final deleteProdcutEndPoint =
-        Uri.parse("${URLs.DeleteProdutcUrl}$productId.json?auth=$token");
+        Uri.parse("${URLs.DeleteProdutcUrl}$productId.json?auth=$authToken");
     try {
       _client.delete(deleteProdcutEndPoint);
       print(_client.delete(deleteProdcutEndPoint));
@@ -88,7 +89,7 @@ class ProductsRemoteDatasourceImpl extends ProductRemoteDatasource {
   Future<Unit> updateProduct(
       ProductModel updatedProduct, String productId) async {
     final updatePostEndPoint =
-        Uri.parse("${URLs.UpdateProductUrl}$productId.auth=$token");
+        Uri.parse("${URLs.UpdateProductUrl}$productId.auth=$authToken");
     final updateProductBody = jsonEncode({
       "title": updatedProduct.title,
       "description": updatedProduct.description,
@@ -98,6 +99,26 @@ class ProductsRemoteDatasourceImpl extends ProductRemoteDatasource {
     try {
       _client.patch(updatePostEndPoint, body: updateProductBody);
       print("the try bloc made it successfully");
+      return Future.value(unit);
+    } catch (error) {
+      throw ServerException();
+    }
+  }
+
+  @override
+  Future<Unit> toggleFavourite(
+      bool currentFavouriteState, String productId) async {
+    bool newIsFavouriteState = !currentFavouriteState;
+    final toggleFavouritesEndPoint = Uri.parse(
+        "${URLs.ToggleFavouriteUrl}$userId/$productId.json?auth=$authToken");
+    try {
+      final response = await _client.put(toggleFavouritesEndPoint,
+          body: json.encode(
+            newIsFavouriteState,
+          ));
+      if (response.statusCode >= 400) {
+        throw ServerException();
+      }
       return Future.value(unit);
     } catch (error) {
       throw ServerException();
