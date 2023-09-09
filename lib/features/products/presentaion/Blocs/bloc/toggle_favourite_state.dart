@@ -7,7 +7,7 @@ abstract class ToggleFavouriteState extends Equatable {
   List<Object> get props => [];
 }
 
-class ToggleFavouriteInitial extends ToggleFavouriteState {}
+class ToggleFavouriteLoading extends ToggleFavouriteState {}
 
 class ToggleFavouriteSuccess extends ToggleFavouriteState {
   final String message;

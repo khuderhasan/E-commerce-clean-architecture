@@ -12,11 +12,13 @@ class ToggleFavouriteBloc
     extends Bloc<ToggleFavouriteEvent, ToggleFavouriteState> {
   final ToggleFavouriteUsecase toggleFavourite;
   ToggleFavouriteBloc({required this.toggleFavourite})
-      : super(ToggleFavouriteInitial()) {
+      : super(ToggleFavouriteLoading()) {
     on<ToggleFavouriteEvent>((event, emit) async {
       if (event is FavouriteEvent) {
+        emit(ToggleFavouriteLoading());
         final successOrFailure =
             await toggleFavourite(event.currentFavouriteState, event.productId);
+        print("the event was fired from inside the bloc");
         emit(_mapSuccessOrFailure(
             successOrFailure, event.currentFavouriteState));
       }

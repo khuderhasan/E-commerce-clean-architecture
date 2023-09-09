@@ -1,16 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
+import '../../../../core/shared_widgets/app_sanck_bar.dart';
+import '../../../../core/shared_widgets/error_dialog.dart';
 
 import '../../../../providers/cart_provider.dart';
 import '../../domain/entities/product.dart';
 import '../BLoCs/bloc/toggle_favourite_bloc.dart';
-import '../Blocs/products_bloc/get_products_bloc.dart';
 import 'add_product_item_snack_bar.dart';
 
-class ProductItemWidget extends StatelessWidget {
+class ProductItemWidget extends StatefulWidget {
   final Product product;
   const ProductItemWidget({super.key, required this.product});
+
+  @override
+  State<ProductItemWidget> createState() => _ProductItemWidgetState();
+}
+
+class _ProductItemWidgetState extends State<ProductItemWidget> {
+  bool isFavourite = false;
+
+  @override
+  void initState() {
+    super.initState();
+    isFavourite = widget.product.isFavourite!;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +35,7 @@ class ProductItemWidget extends StatelessWidget {
         footer: GridTileBar(
           backgroundColor: Colors.black87,
           title: Text(
-            product.title,
+            widget.product.title,
             textAlign: TextAlign.center,
           ),
           leading: IconButton(
@@ -30,30 +44,49 @@ class ProductItemWidget extends StatelessWidget {
               Icons.shopping_cart,
             ),
             onPressed: () {
-              cart.addItem(product.id!, product.title, product.price);
+              cart.addItem(widget.product.id!, widget.product.title,
+                  widget.product.price);
               ScaffoldMessenger.of(context).hideCurrentSnackBar();
               ScaffoldMessenger.of(context).showSnackBar(
                 addProductItemSnackBar(
-                  (() => cart.removeSingleItem(product.id!)),
+                  (() => cart.removeSingleItem(widget.product.id!)),
                 ),
               );
             },
           ),
-          trailing: BlocBuilder<ToggleFavouriteBloc, ToggleFavouriteState>(
+          trailing: BlocConsumer<ToggleFavouriteBloc, ToggleFavouriteState>(
             bloc: context.read<ToggleFavouriteBloc>(),
+            // listenWhen: (previous, current) => current != previous,
+            listener: (context, state) {
+              if (state is ToggleFavouriteSuccess) {
+                ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                ScaffoldMessenger.of(context).showSnackBar((isFavourite)
+                    ? appSnackBar(text: "Product wass Added to Favourites")
+                    : appSnackBar(text: "Prduct was Removed from Favourites"));
+              } else if (state is ToggleFavouriteFailure) {
+                showErrorDialog(context, state.errorMessage);
+                setState(() {
+                  isFavourite = !isFavourite;
+                });
+              }
+            },
             builder: (context, state) {
               return IconButton(
                 color: Colors.deepOrange,
                 icon: Icon(
-                  product.isFavourite! ? Icons.favorite : Icons.favorite_border,
+                  isFavourite ? Icons.favorite : Icons.favorite_border,
                 ),
                 onPressed: () {
                   context.read<ToggleFavouriteBloc>().add(
                         FavouriteEvent(
-                            currentFavouriteState: product.isFavourite!,
-                            productId: product.id!),
+                            currentFavouriteState: isFavourite,
+                            productId: widget.product.id!),
                       );
-                  context.read<GetProductsBloc>().add(GetAllProductsEvent());
+                  setState(() {
+                    isFavourite = !isFavourite;
+                  });
+
+                  // context.read<GetProductsBloc>().add(GetAllProductsEvent());
                 },
               );
             },
@@ -62,7 +95,7 @@ class ProductItemWidget extends StatelessWidget {
         child: GestureDetector(
           onTap: () {},
           child: Image(
-            image: NetworkImage(product.imageUrl),
+            image: NetworkImage(widget.product.imageUrl),
             fit: BoxFit.cover,
           ),
         ),
